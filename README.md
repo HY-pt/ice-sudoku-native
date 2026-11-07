@@ -1,105 +1,73 @@
-# 专业数独程序 
-### iOS <https://apps.apple.com/cn/app/ice-sudoku/id1473595660>
+# ice·sudoku 原生绿色版（WPF / WinUI Fluent）
 
-#### 通过先进的随机数算法在iPhone上也能快速生成SE难度高达8.3的数独
-##### using advanced multithreading random algorithm
-#### 支持按照逻辑分步求解绝大多数数独
-##### solving a sudoku step by step logically
-#### 支持使用Resnet34直接扫一扫识别数独，或者从照片内识别数独。对Resnet34怎么训练感兴趣的到resnet文件夹看一下就知道了。
-##### support Resnet34 scan sudoku by your camera or identify sudoku from photo. If you are interested in how to train the resnet34 model and run the model on iPhone, go to the resnet folder.
+<img src="native/Assets/home.png" width="360" alt="ice·sudoku 启动页图" />
 
-## 获取最新程序 
-#### Download the newest ice sudoku now
-### iOS 11 or later 
- <https://apps.apple.com/cn/app/ice-sudoku/id1473595660>
- 
-### macOS 10.14 or later 
- <https://apps.apple.com/cn/app/ice-sudoku-x/id1479991985?l=en&mt=12>
- 
-### Windows 7 or later 
-1).
-windows 10 x64
-<https://github.com/tropicalwzc/ice_sudoku.github.io/releases/download/2.2.1/ice_sudoku_2.2.1.zip>
+Windows 原生离线数独 · Fluent / WinUI 外观 · 自包含单文件 · HY-pt 维护
 
-windows 7 or x86
-<https://github.com/tropicalwzc/ice_sudoku.github.io/releases/download/2.0.0/ice.sudoku.1.2.2_32bit.zip>
+> 本仓库 fork 自上游 ice·sudoku。`native-wpf` 分支（默认分支）是 Windows 原生绿色版；`master` 分支保留上游原样内容。
 
-2).<https://pan.baidu.com/s/5JxVfZAUkpgtLmI9Vla0yUg>
+## 来龙去脉
 
-### Ubuntu 16.04 or later 
+1. **上游 ice·sudoku** —— [tropicalwzc/ice_sudoku.github.io](https://github.com/tropicalwzc/ice_sudoku.github.io)（MIT 许可，作者 tropicalwzc）。覆盖 iOS / macOS / Windows / Ubuntu 的专业数独程序，支持逻辑分步求解与 ResNet34 扫描识别；Windows 官方版止于 2.2.1。
+2. **网页绿色版** —— 以 upstream ice·sudoku 为起点，先做了一个浏览器打开、双击即玩的离线网页绿色版（免安装、免联网），供日常使用。
+3. **原生重写** —— 为了更贴近 Windows 原生体验（Fluent / WinUI 外观、沉浸式标题栏、明暗主题、单文件离线），用 WPF（.NET 10）完全重写：数独引擎（生成、唯一解校验、逻辑分步求解与提示）、界面与主题均为本分支独立实现，不含上游二进制或代码；延续其名称与玩法脉络，版本号接在上游 Windows 版之后（2.2.1 → 2.3 起）。
+4. **版本演进**
+   - **2.3**：原生重写首版（引擎、棋盘、数字盘、提示 / 自动解、明暗主题）
+   - **2.4**：启动页与应用图标、暂停页与难度调整、沉浸式标题栏、Win11 圆角与工作区最大化、启动图 / 图标抠除白底
+   - **2.5**：标题栏横竖布局切换、草稿模式、三次错误改为三次重来、取消即时判错与答案泄露
+   - **2.5.1**：两种布局统计框顶部居中、暂停按钮右上角；草稿视觉重做（棋盘数字含预设全部变灰、数字键右上角同数字可用角标）
+   - **2.5.2**：横版右侧面板与棋盘等高对齐、数字键改为近方形大按键
+5. **关于配图** —— 启动页与本 README 的 chibi 插画为 AI 生成后经抠图（透明底）处理；同一张图也用于应用图标（`native/Assets/app.ico`）。
 
-1).<https://github.com/tropicalwzc/ice_sudoku.github.io/releases/download/1.2.5/Ubuntu_Installer_ice_sudoku_1.2.5.zip>
+感谢上游作者 tropicalwzc 的 ice·sudoku 与 MIT 许可。
 
-2).<https://pan.baidu.com/s/16sLLSHdpS39Ky6UCmqCSHg> 提取码:7dqv
+## 功能（v2.5.2）
 
-* 1. unzip 
+- 自包含单文件 exe，内置 .NET 运行时，解压双击即玩，免安装 / 免联网 / 免浏览器
+- 启动页：开始游戏 / 退出游戏
+- 横竖两种布局：竖版棋盘在上、数字盘在下；横版棋盘在左、数字盘在右；标题栏按钮一键互换
+- 统计框（用时 / 重来 / 难度）两种布局均顶部居中，暂停按钮右上角
+- 草稿模式：空格记候选小数字；棋盘所有数字（含预设）变铅笔灰；数字键大数字变灰、右上角出现正常色同数字角标表示仍可用
+- 非草稿模式：数字键下方小数字 = 剩余可填数量，填完自动置灰
+- 不即时判错、不泄露答案；冲突仅标红可见重复；盘面填满且无冲突即完成
+- 「↺ 重来」清空全部自填数字与草稿，每局 3 次机会
+- 「💡 提示」给出逻辑可推导的一步；「⚡ 自动解」直接展示答案
+- 暂停页调整难度（简单 / 中等 / 困难 / 专家），开始新游戏时生效
+- 明暗主题切换；Win11 圆角窗口；最大化精确铺满工作区
+
+## 下载与运行
+
+- 最新发布：[v2.5.2](https://github.com/HY-pt/ice-sudoku-native/releases/tag/v2.5.2)（资产 `ice_sudoku_v2.5.2_win-x64.exe`）
+- 系统要求：Windows 10 / 11 64 位
+- 双击运行；首次若被 SmartScreen 拦截，选择「仍要运行」（本地自编译绿色软件，未签名）
+
+## 操作
+
+| 动作 | 按键 |
+| --- | --- |
+| 选中格子 | 鼠标点击 / 方向键 |
+| 填数 | 1-9 或数字键 |
+| 擦除 | 0 / Del / Backspace |
+| 草稿模式 | N 或「✏ 草稿」 |
+| 暂停 / 继续 | Esc 或暂停按钮 |
+| 横竖布局 | 标题栏切换按钮 |
+| 明暗主题 | 标题栏月亮 / 太阳 |
+
+## 从源码构建
+
+需要 .NET SDK 10（Windows）：
+
+```powershell
+dotnet publish native/ice_sudoku_wpf.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true
 ```
-sudo chmod 777 Installerice_sudoku.run
-```
-* 2. run the installer (Don't need sudo under Ubuntu 20.04)
-```
-sudo ./Installerice_sudoku.run
-```
-* 3. get libxcb-xinerama0 
 
-```
-sudo apt-get install libxcb-xinerama0
-```
-* 4. click ice sudoku from show application window or search ice sudoku to launch
+产物为自包含单文件 exe。
 
-if it didn't work, go to ice_sudoku/ice_sudoku folder 
+## 分支与许可
 
-```
-sudo ./ice_sudoku.sh
-```
+- `master`：上游原样内容（fork 保留，未改动）
+- `native-wpf`：本原生绿色版（默认分支）
+- 许可：沿用上游 MIT（见 LICENSE）；本分支代码与文档同以 MIT 发布，版权 HY-pt
+- 启动页 / 图标图：AI 生成 + 人工抠图，仅用于本项目
 
-### Android version
-
-<https://github.com/tropicalwzc/ice_sudoku_alpha.github.io>
-
-或百度云盘下载
-<https://pan.baidu.com/s/5uwKQN04Jk6E9bA0clv_hng>
-
-
-## 帮助文档
-#### iPhone <https://share.weiyun.com/5imj5oa>
-#### iPad <https://share.weiyun.com/5oG4wOG>
-#### Windows&macOS <https://share.weiyun.com/5ewzXXD>
-## 提出你的建议 
-#### Advice or issues
-访问知乎主页
-<https://www.zhihu.com/question/333157539/answer/852434769>
-
-发送邮件到
-<wzcsecond@gmail.com>
-
-或者直接在App store评价留言
-
-## 存档位置
-
-### Windows
-
-根目录ice_save文件夹为所有个人存档，批量生成数独的时候会在根目录建立rolling_history相关txt文件
-
-
----
-**iPad 预览**
-
-![](https://user-images.githubusercontent.com/31509619/86983219-e6992f80-c1bd-11ea-957b-054a18513cc9.png)
-
-**macOS 预览**
-
-![](https://user-images.githubusercontent.com/31509619/86983528-ab4b3080-c1be-11ea-9812-0ca1cd01255a.png)
-
-**Windows 预览**
-
-![](https://user-images.githubusercontent.com/31509619/86509311-8ef37080-be19-11ea-9f89-079c44576b32.png)
-
-**Ubuntu 预览**
-![](https://user-images.githubusercontent.com/31509619/96327939-a1b04f00-1070-11eb-9810-88cc6abab380.png)
-
-**iPhone 预览**
-
-![](https://user-images.githubusercontent.com/31509619/86983184-c1a4bc80-c1bd-11ea-91d5-ccc6ffae580f.png)
-![](https://user-images.githubusercontent.com/31509619/86983203-cff2d880-c1bd-11ea-9d03-88b1f1763b0c.png)
-
+— HY-pt
