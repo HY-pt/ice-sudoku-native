@@ -54,7 +54,7 @@ Windows 原生离线数独 · Fluent / WinUI 外观 · 自包含单文件 · HY-
 
 ## 下载与运行
 
-- 最新发布：[v2.6.1](https://github.com/HY-pt/ice-sudoku-native/releases/tag/v2.6.1)（资产 `ice_sudoku_v2.6.1_win-x64.exe`）
+- 最新发布：[v2.6.0](https://github.com/HY-pt/ice-sudoku-native/releases/tag/v2.6.0)（资产 `ice_sudoku_v2.6.0_win-x64.exe`）
 - 系统要求：Windows 10 / 11 64 位
 - 双击运行；首次若被 SmartScreen 拦截，选择「仍要运行」（本地自编译绿色软件，未签名）
 - 可选启动参数：`--mica` 尝试云母材质；`--solid` 强制纯色背景
