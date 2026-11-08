@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
@@ -11,6 +12,7 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 
@@ -66,6 +68,8 @@ public partial class MainWindow : Window
     {
         for (int r = 0; r < 9; r++) for (int c = 0; c < 9; c++) _notes[r, c] = new HashSet<int>();
         InitializeComponent();
+        var version = typeof(MainWindow).Assembly.GetName().Version;
+        FooterCreditText.Text = $"v{version?.ToString(3)} · 制作与维护：HY-pt";
         BuildBoard();
         BuildNumpad();
         _timer.Tick += (_, _) => { if (!_over && !_paused && _inGame) { _seconds++; UpdateTimer(); } };
@@ -670,6 +674,12 @@ public partial class MainWindow : Window
     /* ---------- 主菜单 / 暂停 ---------- */
     private void StartGame_Click(object sender, RoutedEventArgs e) => _ = NewGameAsync(_difficulty);
     private void ExitGame_Click(object sender, RoutedEventArgs e) => Close();
+
+    private void RepoLink_RequestNavigate(object sender, RequestNavigateEventArgs e)
+    {
+        Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
+        e.Handled = true;
+    }
 
     private void PauseGame()
     {

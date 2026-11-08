@@ -71,6 +71,16 @@
           <Button x:Name="ExitGameBtn" Style="{StaticResource FluentButton}" Content="退出游戏" Padding="32,12"
                   FontSize="16" Click="ExitGame_Click"/>
         </StackPanel>
+        <TextBlock x:Name="FooterCreditText" HorizontalAlignment="Center" Margin="0,28,0,0"
+                   FontSize="12" Foreground="{DynamicResource TextTertiaryBrush}"/>
+        <TextBlock HorizontalAlignment="Center" Margin="0,4,0,0" FontSize="12"
+                   Foreground="{DynamicResource TextTertiaryBrush}">
+          <Run Text="GitHub："/><Hyperlink NavigateUri="https://github.com/HY-pt/ice-sudoku-native"
+                    RequestNavigate="RepoLink_RequestNavigate" Cursor="Hand"
+                    Foreground="{DynamicResource AccentBrush}"
+                    ToolTip="在浏览器中打开 GitHub 仓库"
+                    AutomationProperties.Name="GitHub 仓库：HY-pt/ice-sudoku-native">HY-pt/ice-sudoku-native</Hyperlink>
+        </TextBlock>
       </StackPanel>
     </Grid>
 
