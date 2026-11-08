@@ -234,7 +234,7 @@ public partial class MainWindow : Window
             var g = new Grid { HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch };
             var val = new TextBlock { Text = n.ToString(), HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
             var sub = new TextBlock { FontSize = 10, FontWeight = FontWeights.SemiBold, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Bottom, Margin = new Thickness(0, 0, 0, 4) };
-            var badge = new TextBlock { FontSize = 11, FontWeight = FontWeights.SemiBold, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(0, 4, 4, 0), Visibility = Visibility.Collapsed };
+            var badge = new TextBlock { FontSize = 11, FontWeight = FontWeights.Bold, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(0, 4, 4, 0), Visibility = Visibility.Collapsed };
             g.Children.Add(val);
             g.Children.Add(sub);
             g.Children.Add(badge);
@@ -408,7 +408,7 @@ public partial class MainWindow : Window
             if (v != 0)
             {
                 cell.Value.Text = v.ToString();
-                cell.Value.Foreground = _notesMode ? B("NoteBrush") : (conflicts[r, c] ? B("DangerBrush") : (_given[r, c] ? B("GivenBrush") : B("UserBrush")));
+                cell.Value.Foreground = _notesMode ? B("DraftBrush") : (conflicts[r, c] ? B("DangerBrush") : (_given[r, c] ? B("GivenBrush") : B("UserBrush")));
                 cell.Value.FontWeight = _given[r, c] ? FontWeights.Bold : FontWeights.SemiBold;
                 cell.NotesHost.Visibility = Visibility.Collapsed;
             }
@@ -441,7 +441,7 @@ public partial class MainWindow : Window
             _numVal[n].Text = n.ToString();
             if (_notesMode)
             {
-                _numVal[n].Foreground = B("NoteBrush");
+                _numVal[n].Foreground = B("DraftBrush");
                 _numLeft[n].Visibility = Visibility.Collapsed;
                 _numBadge[n].Text = n.ToString();
                 _numBadge[n].Foreground = B("TextPrimaryBrush");
@@ -601,8 +601,16 @@ public partial class MainWindow : Window
             StatsHost.Margin = new Thickness(0, 0, 0, 12);
             MoveTo(NumpadGrid, HSide, 0);
             NumpadGrid.Columns = 3; NumpadGrid.Rows = 3;
-            NumpadGrid.Margin = new Thickness(0, 0, 0, 12);
-            for (int n = 1; n <= 9; n++) _numButtons[n].Height = double.NaN;
+            NumpadGrid.Height = 252;
+            NumpadGrid.VerticalAlignment = VerticalAlignment.Center;
+            NumpadGrid.Margin = new Thickness(12, 0, 12, 12);
+            for (int n = 1; n <= 9; n++)
+            {
+                _numButtons[n].Height = 76;
+                _numVal[n].FontSize = 30;
+                _numBadge[n].FontSize = 13;
+                _numLeft[n].FontSize = 12;
+            }
             MoveTo(ActionsHost, HSide, 1);
             ActionsHost.Columns = 2; ActionsHost.Rows = 3;
             ActionsHost.Height = 132;
@@ -622,8 +630,16 @@ public partial class MainWindow : Window
             StatsHost.Margin = new Thickness(0, 0, 0, 12);
             MoveTo(NumpadGrid, VRoot, 2);
             NumpadGrid.Columns = 9; NumpadGrid.Rows = 1;
+            NumpadGrid.Height = double.NaN;
+            NumpadGrid.VerticalAlignment = VerticalAlignment.Stretch;
             NumpadGrid.Margin = new Thickness(0, 0, 0, 12);
-            for (int n = 1; n <= 9; n++) _numButtons[n].Height = 56;
+            for (int n = 1; n <= 9; n++)
+            {
+                _numButtons[n].Height = 56;
+                _numVal[n].FontSize = 24;
+                _numBadge[n].FontSize = 11;
+                _numLeft[n].FontSize = 10;
+            }
             MoveTo(ActionsHost, VRoot, 3);
             ActionsHost.Columns = 6; ActionsHost.Rows = 1;
             ActionsHost.Height = double.NaN;
@@ -640,7 +656,7 @@ public partial class MainWindow : Window
         newRoot.Opacity = 0;
         newRoot.Visibility = Visibility.Visible;
         FadeTo(newRoot, 1, 180);
-        MinWidth = h ? 900 : 620;
+        MinWidth = h ? 920 : 620;
         MinHeight = h ? 680 : 860;
 
         await Task.Delay(200);

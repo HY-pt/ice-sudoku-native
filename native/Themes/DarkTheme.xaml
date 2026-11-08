@@ -46,6 +46,7 @@
   <SolidColorBrush x:Key="SameBrush" Color="#2960CDFF"/>
   <SolidColorBrush x:Key="SelectedBrush" Color="#3860CDFF"/>
   <SolidColorBrush x:Key="NoteBrush" Color="#A0A0A0"/>
+  <SolidColorBrush x:Key="DraftBrush" Color="#8E8E8E"/>
   <SolidColorBrush x:Key="OverlayBrush" Color="#B8242424"/>
 
 </ResourceDictionary>

@@ -46,6 +46,7 @@
   <SolidColorBrush x:Key="SameBrush" Color="{x:Static SystemColors.HighlightColor}" Opacity="0.25"/>
   <SolidColorBrush x:Key="SelectedBrush" Color="{x:Static SystemColors.HighlightColor}" Opacity="0.4"/>
   <SolidColorBrush x:Key="NoteBrush" Color="{x:Static SystemColors.GrayTextColor}"/>
+  <SolidColorBrush x:Key="DraftBrush" Color="{x:Static SystemColors.GrayTextColor}"/>
   <SolidColorBrush x:Key="OverlayBrush" Color="{x:Static SystemColors.WindowColor}" Opacity="0.94"/>
 
 </ResourceDictionary>
