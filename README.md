@@ -1,8 +1,9 @@
 # ice·sudoku 原生绿色版（WPF / WinUI Fluent）
 
-<img src="native/Assets/home.png" width="360" alt="ice·sudoku 启动页图" />
-
-Windows 原生离线数独 · Fluent / WinUI 外观 · 自包含单文件 · HY-pt 维护
+<p align="center">
+  <img src="native/Assets/home.png" width="360" alt="ice·sudoku 启动页图" />
+</p>
+<p align="center">Windows 原生离线数独 · Fluent / WinUI 外观 · 自包含单文件 · HY-pt 维护</p>
 
 > 本仓库 fork 自上游 ice·sudoku。`native-wpf` 分支（默认分支）是 Windows 原生绿色版；`master` 分支保留上游原样内容。
 
@@ -10,13 +11,20 @@ Windows 原生离线数独 · Fluent / WinUI 外观 · 自包含单文件 · HY-
 
 启动页与游戏过程截图（浅色 / 深色、竖版 / 横版、草稿与提示条）：
 
-| 启动页 | 对局（竖版） |
-| --- | --- |
-| <img src="docs/home_light.png" width="300" alt="启动页" /> | <img src="docs/game_light.png" width="300" alt="竖版对局" /> |
-| **草稿模式**（候选小数字） | **提示条 InfoBar** |
-| <img src="docs/draft_light.png" width="300" alt="草稿模式" /> | <img src="docs/hint_light.png" width="300" alt="提示条" /> |
-| **横版布局（浅色）** | **横版布局（深色）** |
-| <img src="docs/horizontal_light.png" width="380" alt="横版浅色" /> | <img src="docs/horizontal_dark.png" width="380" alt="横版深色" /> |
+<p align="center">
+  <img src="docs/home_light.png" width="300" alt="启动页" />&nbsp;&nbsp;<img src="docs/game_light.png" width="300" alt="竖版对局" />
+</p>
+<p align="center"><sub>启动页 · 竖版对局</sub></p>
+
+<p align="center">
+  <img src="docs/draft_light.png" width="300" alt="草稿模式" />&nbsp;&nbsp;<img src="docs/hint_light.png" width="300" alt="提示条" />
+</p>
+<p align="center"><sub>草稿模式（候选小数字） · 提示条 InfoBar</sub></p>
+
+<p align="center">
+  <img src="docs/horizontal_light.png" width="380" alt="横版浅色" />&nbsp;&nbsp;<img src="docs/horizontal_dark.png" width="380" alt="横版深色" />
+</p>
+<p align="center"><sub>横版布局（浅色） · 横版布局（深色）</sub></p>
 
 ## 来龙去脉
 
