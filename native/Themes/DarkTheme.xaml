@@ -6,6 +6,7 @@
 
   <Color x:Key="AppBackgroundColor">#242424</Color>
   <SolidColorBrush x:Key="AppBackgroundBrush" Color="#242424"/>
+  <SolidColorBrush x:Key="MicaTintBrush" Color="#E6242424"/>
   <SolidColorBrush x:Key="LayerBrush" Color="#303030"/>
   <SolidColorBrush x:Key="LayerAltBrush" Color="#383838"/>
   <SolidColorBrush x:Key="CardBorderBrush" Color="#12FFFFFF"/>
@@ -16,21 +17,28 @@
 
   <SolidColorBrush x:Key="TextPrimaryBrush" Color="#E4E4E4"/>
   <SolidColorBrush x:Key="TextSecondaryBrush" Color="#C5C5C5"/>
-  <SolidColorBrush x:Key="TextTertiaryBrush" Color="#8A8A8A"/>
+  <SolidColorBrush x:Key="TextTertiaryBrush" Color="#9E9E9E"/>
 
   <SolidColorBrush x:Key="AccentBrush" Color="#60CDFF"/>
   <SolidColorBrush x:Key="AccentHoverBrush" Color="#7AD4FF"/>
+  <SolidColorBrush x:Key="AccentPressedBrush" Color="#55C4F2"/>
   <SolidColorBrush x:Key="AccentTextBrush" Color="#003D6B"/>
   <SolidColorBrush x:Key="AccentSubtleBrush" Color="#1A60CDFF"/>
 
   <SolidColorBrush x:Key="ControlFillBrush" Color="#0FFFFFFF"/>
   <SolidColorBrush x:Key="ControlFillHoverBrush" Color="#16FFFFFF"/>
+  <SolidColorBrush x:Key="ControlFillPressedBrush" Color="#0AFFFFFF"/>
   <SolidColorBrush x:Key="SubtleHoverBrush" Color="#0FFFFFFF"/>
+
+  <SolidColorBrush x:Key="FocusOuterBrush" Color="#FFFFFF"/>
+  <SolidColorBrush x:Key="FocusInnerBrush" Color="#1A1A1A"/>
 
   <SolidColorBrush x:Key="DangerBrush" Color="#FF99A4"/>
   <SolidColorBrush x:Key="DangerSubtleBrush" Color="#1FFF99A4"/>
   <SolidColorBrush x:Key="SuccessBrush" Color="#6CCB5F"/>
+  <SolidColorBrush x:Key="SuccessSubtleBrush" Color="#1A6CCB5F"/>
   <SolidColorBrush x:Key="WarnBrush" Color="#FCE100"/>
+  <SolidColorBrush x:Key="WarnSubtleBrush" Color="#1AFCE100"/>
 
   <SolidColorBrush x:Key="GivenBrush" Color="#E8E8E8"/>
   <SolidColorBrush x:Key="UserBrush" Color="#8ECAE6"/>

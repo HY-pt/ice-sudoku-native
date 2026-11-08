@@ -1,13 +1,16 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Automation;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 
@@ -19,6 +22,7 @@ public partial class MainWindow : Window
     {
         public Border Root = null!;
         public TextBlock Value = null!;
+        public ScaleTransform ValueScale = null!;
         public UniformGrid NotesHost = null!;
         public TextBlock[] Notes = null!;
     }
@@ -41,6 +45,10 @@ public partial class MainWindow : Window
     private bool _inGame;
     private bool _maximized;
     private bool _horizontal;
+    private bool _layoutBusy;
+    private bool _mica;
+    private readonly bool _solidMode = Environment.GetCommandLineArgs().AsSpan().IndexOf("--solid") >= 0;
+    private readonly bool _micaRequested = Environment.GetCommandLineArgs().AsSpan().IndexOf("--mica") >= 0;
     private Rect _restoreBounds;
 
     private readonly CellVisual[,] _cells = new CellVisual[9, 9];
@@ -49,6 +57,8 @@ public partial class MainWindow : Window
     private readonly TextBlock[] _numLeft = new TextBlock[10];
     private readonly TextBlock[] _numBadge = new TextBlock[10];
     private readonly DispatcherTimer _timer = new() { Interval = TimeSpan.FromSeconds(1) };
+
+    private static readonly IEasingFunction EaseOut = new CubicEase { EasingMode = EasingMode.EaseOut };
 
     private static Brush B(string key) => (Brush)Application.Current.Resources[key];
 
@@ -60,7 +70,85 @@ public partial class MainWindow : Window
         BuildNumpad();
         _timer.Tick += (_, _) => { if (!_over && !_paused && _inGame) { _seconds++; UpdateTimer(); } };
         SourceInitialized += (_, _) => InitNative();
+        App.SetTheme(App.IsDark);
+        SystemParameters.StaticPropertyChanged += OnSystemParametersChanged;
         UpdateThemeIcon();
+    }
+
+    private void OnSystemParametersChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName != nameof(SystemParameters.HighContrast)) return;
+        App.SetTheme(App.IsDark);
+        ApplyNativeBackdrop();
+        if (_inGame) Render();
+    }
+
+    /* ---------- 动画 ---------- */
+    private void FadeTo(UIElement el, double to, int ms, Action? done = null)
+    {
+        var anim = new DoubleAnimation(to, TimeSpan.FromMilliseconds(ms)) { EasingFunction = EaseOut };
+        anim.Completed += (_, _) =>
+        {
+            el.BeginAnimation(OpacityProperty, null);
+            el.Opacity = to;
+            done?.Invoke();
+        };
+        el.BeginAnimation(OpacityProperty, anim);
+    }
+
+    private static void ScaleTo(ScaleTransform st, double from, double to, int ms)
+    {
+        st.BeginAnimation(ScaleTransform.ScaleXProperty, null);
+        st.BeginAnimation(ScaleTransform.ScaleYProperty, null);
+        st.ScaleX = from;
+        st.ScaleY = from;
+        var anim = new DoubleAnimation(to, TimeSpan.FromMilliseconds(ms)) { EasingFunction = EaseOut };
+        anim.Completed += (_, _) =>
+        {
+            st.BeginAnimation(ScaleTransform.ScaleXProperty, null);
+            st.BeginAnimation(ScaleTransform.ScaleYProperty, null);
+            st.ScaleX = to;
+            st.ScaleY = to;
+        };
+        st.BeginAnimation(ScaleTransform.ScaleXProperty, anim);
+        st.BeginAnimation(ScaleTransform.ScaleYProperty, anim);
+    }
+
+    private void ShowOverlay(FrameworkElement ov, ScaleTransform cardScale, IInputElement focus)
+    {
+        ov.Visibility = Visibility.Visible;
+        ov.Opacity = 0;
+        FadeTo(ov, 1, 180);
+        ScaleTo(cardScale, 0.94, 1, 220);
+        focus.Focus();
+    }
+
+    private void HideOverlay(FrameworkElement ov, Action? done = null)
+    {
+        FadeTo(ov, 0, 140, () =>
+        {
+            ov.Visibility = Visibility.Collapsed;
+            ov.Opacity = 1;
+            done?.Invoke();
+        });
+    }
+
+    private void ShowPage(FrameworkElement show, FrameworkElement hide)
+    {
+        hide.Visibility = Visibility.Collapsed;
+        show.Visibility = Visibility.Visible;
+        show.Opacity = 0;
+        FadeTo(show, 1, 220);
+    }
+
+    private void AnimateWindowSize(double w, double h, int ms)
+    {
+        var aw = new DoubleAnimation(w, TimeSpan.FromMilliseconds(ms)) { EasingFunction = EaseOut };
+        var ah = new DoubleAnimation(h, TimeSpan.FromMilliseconds(ms)) { EasingFunction = EaseOut };
+        aw.Completed += (_, _) => { BeginAnimation(WidthProperty, null); Width = w; };
+        ah.Completed += (_, _) => { BeginAnimation(HeightProperty, null); Height = h; };
+        BeginAnimation(WidthProperty, aw);
+        BeginAnimation(HeightProperty, ah);
     }
 
     /* ---------- 棋盘构建 ---------- */
@@ -82,8 +170,11 @@ public partial class MainWindow : Window
                 VerticalAlignment = VerticalAlignment.Center,
                 FontFamily = (FontFamily)FindResource("NumFont"),
                 FontSize = 30,
-                FontWeight = FontWeights.SemiBold
+                FontWeight = FontWeights.SemiBold,
+                RenderTransformOrigin = new Point(0.5, 0.5)
             };
+            var valueScale = new ScaleTransform(1, 1);
+            value.RenderTransform = valueScale;
 
             var notesHost = new UniformGrid { Columns = 3, Rows = 3, Margin = new Thickness(2), Visibility = Visibility.Collapsed };
             var notes = new TextBlock[9];
@@ -120,28 +211,37 @@ public partial class MainWindow : Window
             root.Child = inner;
             int rr = r, cc = c;
             root.MouseLeftButtonUp += (_, _) => SelectCell(rr, cc);
+            AutomationProperties.SetName(root, CellName(rr, cc));
             Grid.SetRow(root, r);
             Grid.SetColumn(root, c);
             BoardGrid.Children.Add(root);
-            _cells[r, c] = new CellVisual { Root = root, Value = value, NotesHost = notesHost, Notes = notes };
+            _cells[r, c] = new CellVisual { Root = root, Value = value, ValueScale = valueScale, NotesHost = notesHost, Notes = notes };
         }
+    }
+
+    private string CellName(int r, int c)
+    {
+        int v = _grid[r, c];
+        string val = v == 0 ? "空" : $"数字 {v}";
+        return $"第{r + 1}行第{c + 1}列，{val}{(_given[r, c] ? "，预设" : "")}";
     }
 
     private void BuildNumpad()
     {
         for (int n = 1; n <= 9; n++)
         {
-            var btn = new Button { Style = (Style)FindResource("NumButton"), Margin = new Thickness(3) };
+            var btn = new Button { Style = (Style)FindResource("NumButton"), Margin = new Thickness(4) };
             var g = new Grid { HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch };
             var val = new TextBlock { Text = n.ToString(), HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
             var sub = new TextBlock { FontSize = 10, FontWeight = FontWeights.SemiBold, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Bottom, Margin = new Thickness(0, 0, 0, 4) };
-            var badge = new TextBlock { FontSize = 11, FontWeight = FontWeights.SemiBold, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(0, 4, 6, 0), Visibility = Visibility.Collapsed };
+            var badge = new TextBlock { FontSize = 11, FontWeight = FontWeights.SemiBold, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(0, 4, 4, 0), Visibility = Visibility.Collapsed };
             g.Children.Add(val);
             g.Children.Add(sub);
             g.Children.Add(badge);
             btn.Content = g;
             int nn = n;
             btn.Click += (_, _) => InputNumber(nn);
+            AutomationProperties.SetName(btn, $"填数 {n}，剩余 9");
             NumpadGrid.Children.Add(btn);
             _numButtons[n] = btn;
             _numVal[n] = val;
@@ -154,11 +254,12 @@ public partial class MainWindow : Window
     private async Task NewGameAsync(string? diff)
     {
         if (diff != null) _difficulty = diff;
+        if (GamePanel.Visibility != Visibility.Visible) ShowPage(GamePanel, HomePanel);
         SetHint("", null);
         Overlay.Visibility = Visibility.Collapsed;
+        Overlay.Opacity = 1;
         PauseOverlay.Visibility = Visibility.Collapsed;
-        HomePanel.Visibility = Visibility.Collapsed;
-        GamePanel.Visibility = Visibility.Visible;
+        PauseOverlay.Opacity = 1;
         _over = false;
         _paused = false;
         _inGame = true;
@@ -228,6 +329,7 @@ public partial class MainWindow : Window
         _grid[r, c] = n;
         _notes[r, c].Clear();
         Render();
+        ScaleTo(_cells[r, c].ValueScale, 1.2, 1, 180);
         CheckWin();
     }
 
@@ -253,7 +355,7 @@ public partial class MainWindow : Window
         _restarts++;
         RestartText.Text = $"{_restarts} / {MaxRestarts}";
         RestartBtn.IsEnabled = _restarts < MaxRestarts;
-        SetHint($"盘面已清空，第 {_restarts} 次重来。", null);
+        SetHint($"盘面已清空，第 {_restarts} 次重来。", "ok");
         Render();
     }
 
@@ -301,6 +403,7 @@ public partial class MainWindow : Window
             }
             if (conflicts[r, c]) bg = B("DangerSubtleBrush");
             cell.Root.Background = bg;
+            AutomationProperties.SetName(cell.Root, CellName(r, c) + (sel is { } sc && sc.R == r && sc.C == c ? "，已选中" : ""));
 
             if (v != 0)
             {
@@ -354,6 +457,9 @@ public partial class MainWindow : Window
             }
             _numButtons[n].Opacity = left <= 0 ? 0.35 : 1.0;
             _numButtons[n].IsEnabled = left > 0;
+            AutomationProperties.SetName(_numButtons[n], _notesMode
+                ? $"草稿数字 {n}，{(left > 0 ? "可用" : "已填满")}"
+                : $"填数 {n}，剩余 {left}");
         }
     }
 
@@ -392,7 +498,7 @@ public partial class MainWindow : Window
         int wrong = 0;
         for (int r = 0; r < 9; r++) for (int c = 0; c < 9; c++)
             if (_grid[r, c] != 0 && _grid[r, c] != _solution[r, c]) wrong++;
-        if (wrong == 0) SetHint("目前填的都正确 👍", "ok");
+        if (wrong == 0) SetHint("目前填的都正确。", "ok");
         else SetHint($"还有 {wrong} 格与正解不符，红框处需修正。", "warn");
     }
 
@@ -420,28 +526,30 @@ public partial class MainWindow : Window
     {
         _over = true;
         _timer.Stop();
-        OverlayEmoji.Text = "🎉";
         OverlayTitle.Text = "完成！";
         OverlayText.Text = $"用时 {TimerText.Text}，重来 {_restarts} 次。漂亮！";
-        Overlay.Visibility = Visibility.Visible;
+        ShowOverlay(Overlay, WinCardScale, OverlayNew);
     }
 
-    /* ---------- 提示条 ---------- */
+    /* ---------- 提示条（InfoBar 样式） ---------- */
     private void SetHint(string msg, string? kind)
     {
+        if (string.IsNullOrEmpty(msg))
+        {
+            HintIcon.Text = "\uE946";
+            HintIcon.SetResourceReference(TextBlock.ForegroundProperty, "AccentBrush");
+            HintText.Text = "逻辑提示与检查结果会显示在这里。";
+            HintText.SetResourceReference(TextBlock.ForegroundProperty, "TextSecondaryBrush");
+            HintBar.SetResourceReference(Border.BackgroundProperty, "LayerBrush");
+            HintBar.SetResourceReference(Border.BorderBrushProperty, "CardBorderBrush");
+            return;
+        }
+        HintIcon.Text = kind switch { "ok" => "\uE73E", "warn" => "\uE7BA", _ => "\uE946" };
+        HintIcon.SetResourceReference(TextBlock.ForegroundProperty, kind switch { "ok" => "SuccessBrush", "warn" => "WarnBrush", _ => "AccentBrush" });
         HintText.Text = msg;
-        HintText.Foreground = kind switch
-        {
-            "ok" => B("SuccessBrush"),
-            "warn" => B("WarnBrush"),
-            _ => B("TextSecondaryBrush")
-        };
-        HintBar.BorderBrush = kind switch
-        {
-            "ok" => B("SuccessBrush"),
-            "warn" => B("WarnBrush"),
-            _ => B("CardBorderBrush")
-        };
+        HintText.SetResourceReference(TextBlock.ForegroundProperty, "TextSecondaryBrush");
+        HintBar.SetResourceReference(Border.BackgroundProperty, kind switch { "ok" => "SuccessSubtleBrush", "warn" => "WarnSubtleBrush", _ => "LayerBrush" });
+        HintBar.SetResourceReference(Border.BorderBrushProperty, kind switch { "ok" => "SuccessBrush", "warn" => "WarnBrush", _ => "CardBorderBrush" });
     }
 
     /* ---------- 主题 ---------- */
@@ -449,7 +557,8 @@ public partial class MainWindow : Window
     {
         App.SetTheme(!App.IsDark);
         UpdateThemeIcon();
-        Render();
+        ApplyNativeBackdrop();
+        if (_inGame) Render();
     }
 
     private void UpdateThemeIcon()
@@ -468,18 +577,28 @@ public partial class MainWindow : Window
 
     private void LayoutToggle_Click(object sender, RoutedEventArgs e) => SetLayout(!_horizontal);
 
-    private void SetLayout(bool h)
+    private async void SetLayout(bool h)
     {
-        if (h == _horizontal) return;
+        if (h == _horizontal || _layoutBusy) return;
+        _layoutBusy = true;
         _horizontal = h;
+
+        var oldRoot = h ? (FrameworkElement)VRoot : HRoot;
+        var newRoot = h ? (FrameworkElement)HRoot : VRoot;
+
+        MinWidth = 620;
+        MinHeight = 680;
+        FadeTo(oldRoot, 0, 120);
+        if (!_maximized) AnimateWindowSize(h ? 960 : 660, h ? 780 : 940, 240);
+
+        await Task.Delay(130);
+
         if (h)
         {
-            VRoot.Visibility = Visibility.Collapsed;
-            HRoot.Visibility = Visibility.Visible;
             MoveTo(BoardHost, HBoard);
             BoardHost.Margin = new Thickness(0);
             MoveTo(StatsHost, HTop);
-            StatsHost.Margin = new Thickness(0, 0, 0, 10);
+            StatsHost.Margin = new Thickness(0, 0, 0, 12);
             MoveTo(NumpadGrid, HSide, 0);
             NumpadGrid.Columns = 3; NumpadGrid.Rows = 3;
             NumpadGrid.Margin = new Thickness(0, 0, 0, 12);
@@ -489,22 +608,18 @@ public partial class MainWindow : Window
             ActionsHost.Height = 132;
             ActionsHost.Margin = new Thickness(0, 0, 0, 12);
             MoveTo(HintBar, HSide, 2);
-            HintBar.Margin = new Thickness(0, 0, 0, 10);
+            HintBar.Margin = new Thickness(0, 0, 0, 8);
             MoveTo(FooterText, HSide, 3);
             FooterText.TextWrapping = TextWrapping.Wrap;
-            FooterText.Margin = new Thickness(0, 6, 0, 0);
-            MinWidth = 900; MinHeight = 680;
+            FooterText.Margin = new Thickness(0, 4, 0, 0);
             if (_maximized) _restoreBounds = new Rect(_restoreBounds.X, _restoreBounds.Y, 960, 780);
-            else { Width = 960; Height = 780; }
         }
         else
         {
-            HRoot.Visibility = Visibility.Collapsed;
-            VRoot.Visibility = Visibility.Visible;
             MoveTo(BoardHost, VRoot, 1);
-            BoardHost.Margin = new Thickness(0, 0, 0, 14);
+            BoardHost.Margin = new Thickness(0, 0, 0, 12);
             MoveTo(StatsHost, VRoot, 0);
-            StatsHost.Margin = new Thickness(0, 0, 0, 14);
+            StatsHost.Margin = new Thickness(0, 0, 0, 12);
             MoveTo(NumpadGrid, VRoot, 2);
             NumpadGrid.Columns = 9; NumpadGrid.Rows = 1;
             NumpadGrid.Margin = new Thickness(0, 0, 0, 12);
@@ -512,15 +627,24 @@ public partial class MainWindow : Window
             MoveTo(ActionsHost, VRoot, 3);
             ActionsHost.Columns = 6; ActionsHost.Rows = 1;
             ActionsHost.Height = double.NaN;
+            ActionsHost.Margin = new Thickness(0, 0, 0, 12);
             MoveTo(HintBar, VRoot, 4);
-            HintBar.Margin = new Thickness(0, 0, 0, 10);
+            HintBar.Margin = new Thickness(0, 0, 0, 8);
             MoveTo(FooterText, VRoot, 5);
             FooterText.TextWrapping = TextWrapping.NoWrap;
-            FooterText.Margin = new Thickness(0, 0, 0, 10);
-            MinWidth = 620; MinHeight = 860;
+            FooterText.Margin = new Thickness(0, 0, 0, 8);
             if (_maximized) _restoreBounds = new Rect(_restoreBounds.X, _restoreBounds.Y, 660, 940);
-            else { Width = 660; Height = 940; }
         }
+
+        oldRoot.Visibility = Visibility.Collapsed;
+        newRoot.Opacity = 0;
+        newRoot.Visibility = Visibility.Visible;
+        FadeTo(newRoot, 1, 180);
+        MinWidth = h ? 900 : 620;
+        MinHeight = h ? 680 : 860;
+
+        await Task.Delay(200);
+        _layoutBusy = false;
     }
 
     /* ---------- 主菜单 / 暂停 ---------- */
@@ -537,15 +661,15 @@ public partial class MainWindow : Window
         PDiffMedium.IsChecked = _difficulty == "medium";
         PDiffHard.IsChecked = _difficulty == "hard";
         PDiffExpert.IsChecked = _difficulty == "expert";
-        PauseOverlay.Visibility = Visibility.Visible;
+        ShowOverlay(PauseOverlay, PauseCardScale, ResumeBtn);
     }
 
     private void ResumeGame()
     {
         if (!_paused) return;
         _paused = false;
-        PauseOverlay.Visibility = Visibility.Collapsed;
         if (!_over) _timer.Start();
+        HideOverlay(PauseOverlay, () => PauseBtn.Focus());
     }
 
     private void Pause_Click(object sender, RoutedEventArgs e) => PauseGame();
@@ -553,17 +677,18 @@ public partial class MainWindow : Window
     private void PauseNew_Click(object sender, RoutedEventArgs e)
     {
         PauseOverlay.Visibility = Visibility.Collapsed;
+        PauseOverlay.Opacity = 1;
         _paused = false;
         _ = NewGameAsync(_pendingDiff);
     }
     private void Menu_Click(object sender, RoutedEventArgs e)
     {
         PauseOverlay.Visibility = Visibility.Collapsed;
+        PauseOverlay.Opacity = 1;
         _paused = false;
         _inGame = false;
         _timer.Stop();
-        GamePanel.Visibility = Visibility.Collapsed;
-        HomePanel.Visibility = Visibility.Visible;
+        ShowPage(HomePanel, GamePanel);
     }
     private void PauseDiff_Checked(object sender, RoutedEventArgs e)
     {
@@ -583,7 +708,7 @@ public partial class MainWindow : Window
         if (_inGame) Render();
     }
     private void OverlayNew_Click(object sender, RoutedEventArgs e) => _ = NewGameAsync(null);
-    private void OverlayDismiss_Click(object sender, RoutedEventArgs e) => Overlay.Visibility = Visibility.Collapsed;
+    private void OverlayDismiss_Click(object sender, RoutedEventArgs e) => HideOverlay(Overlay);
 
     /* ---------- 标题栏 ---------- */
     private void Minimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
@@ -592,26 +717,33 @@ public partial class MainWindow : Window
 
     private void UpdateMaxGlyph()
     {
-        MaxBtn.Content = _maximized ? "❐" : "□";
+        MaxBtn.Content = _maximized ? "\uE923" : "\uE922";
         MaxBtn.ToolTip = _maximized ? "还原" : "最大化";
+        AutomationProperties.SetName(MaxBtn, _maximized ? "还原" : "最大化");
     }
 
-    /* ---------- 原生窗口：手动最大化 + Win11 圆角 ---------- */
+    /* ---------- 原生窗口：手动最大化 + Win11 圆角 + Mica ---------- */
     private const int WM_SYSCOMMAND = 0x0112;
     private const int SC_MAXIMIZE = 0xF030;
     private const int SC_RESTORE = 0xF120;
+    private const int DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
     private const int DWMWA_WINDOW_CORNER_PREFERENCE = 33;
+    private const int DWMWA_SYSTEMBACKDROP_TYPE = 38;
+    private const int DWMSBT_NONE = 1;
+    private const int DWMSBT_MAINWINDOW = 2;
     private const uint MONITOR_DEFAULTTONEAREST = 2;
     private const uint SWP_NOZORDER = 0x0004;
     private const uint SWP_NOACTIVATE = 0x0010;
 
     [StructLayout(LayoutKind.Sequential)] private struct RECT { public int Left, Top, Right, Bottom; }
     [StructLayout(LayoutKind.Sequential)] private struct MONITORINFO { public int cbSize; public RECT rcMonitor, rcWork; public int dwFlags; }
+    [StructLayout(LayoutKind.Sequential)] private struct MARGINS { public int Left, Right, Top, Bottom; }
 
     [DllImport("user32.dll")] private static extern IntPtr MonitorFromWindow(IntPtr h, uint flags);
     [DllImport("user32.dll")] private static extern bool GetMonitorInfo(IntPtr h, ref MONITORINFO mi);
     [DllImport("user32.dll")] private static extern bool SetWindowPos(IntPtr h, IntPtr after, int x, int y, int cx, int cy, uint flags);
     [DllImport("dwmapi.dll")] private static extern int DwmSetWindowAttribute(IntPtr h, int attr, ref int val, int size);
+    [DllImport("dwmapi.dll")] private static extern int DwmExtendFrameIntoClientArea(IntPtr h, ref MARGINS m);
 
     private IntPtr Hwnd => new WindowInteropHelper(this).Handle;
 
@@ -620,6 +752,7 @@ public partial class MainWindow : Window
         HwndSource.FromHwnd(Hwnd)?.AddHook(WndProc);
         SetCorners(true);
         UpdateMaxGlyph();
+        ApplyNativeBackdrop();
     }
 
     private IntPtr WndProc(IntPtr h, int msg, IntPtr w, IntPtr l, ref bool handled)
@@ -637,6 +770,37 @@ public partial class MainWindow : Window
     {
         int pref = round ? 2 : 1; // DWMWCP_ROUND / DWMWCP_DONOTROUND
         DwmSetWindowAttribute(Hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, ref pref, 4);
+    }
+
+    private void ApplyNativeBackdrop()
+    {
+        int dark = App.IsDark ? 1 : 0;
+        DwmSetWindowAttribute(Hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, ref dark, 4);
+        if (SystemParameters.HighContrast || _solidMode || !_micaRequested)
+        {
+            if (_mica)
+            {
+                int none = DWMSBT_NONE;
+                DwmSetWindowAttribute(Hwnd, DWMWA_SYSTEMBACKDROP_TYPE, ref none, 4);
+                _mica = false;
+            }
+            SetResourceReference(BackgroundProperty, "AppBackgroundBrush");
+            return;
+        }
+        if (_mica) SetResourceReference(BackgroundProperty, "MicaTintBrush");
+        else TryMica();
+    }
+
+    private void TryMica()
+    {
+        if (Environment.OSVersion.Version.Build < 22621) return;
+        var margins = new MARGINS { Left = -1, Right = -1, Top = -1, Bottom = -1 };
+        if (DwmExtendFrameIntoClientArea(Hwnd, ref margins) != 0) return;
+        int backdrop = DWMSBT_MAINWINDOW;
+        if (DwmSetWindowAttribute(Hwnd, DWMWA_SYSTEMBACKDROP_TYPE, ref backdrop, 4) != 0) return;
+        _mica = true;
+        // 半透明底色：虚拟显卡/远程桌面上 Mica 不生效时仍是可读的纯色
+        SetResourceReference(BackgroundProperty, "MicaTintBrush");
     }
 
     private Rect WorkArea()
@@ -672,6 +836,7 @@ public partial class MainWindow : Window
         if (e.Key == Key.Escape)
         {
             if (_inGame && !_over) { if (_paused) ResumeGame(); else PauseGame(); }
+            else if (_over && Overlay.Visibility == Visibility.Visible) HideOverlay(Overlay);
             e.Handled = true;
             return;
         }

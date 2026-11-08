@@ -10,7 +10,10 @@ public partial class App : Application
     public static void SetTheme(bool dark)
     {
         IsDark = dark;
-        var uri = new Uri(dark ? "Themes/DarkTheme.xaml" : "Themes/LightTheme.xaml", UriKind.Relative);
+        string path = SystemParameters.HighContrast
+            ? "Themes/HighContrastTheme.xaml"
+            : dark ? "Themes/DarkTheme.xaml" : "Themes/LightTheme.xaml";
+        var uri = new Uri(path, UriKind.Relative);
         var dicts = Current.Resources.MergedDictionaries;
         for (int i = 0; i < dicts.Count; i++)
         {

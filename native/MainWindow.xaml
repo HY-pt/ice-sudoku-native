@@ -21,19 +21,21 @@
 
     <!-- 沉浸式标题栏 -->
     <Grid Grid.Row="0">
-      <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="14,0,0,0">
+      <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
         <Image Source="Assets/app.ico" Width="22" Height="22"/>
-        <TextBlock Text="ice·sudoku" FontSize="14" FontWeight="SemiBold" Margin="10,0,0,0" VerticalAlignment="Center"/>
+        <TextBlock Text="ice·sudoku" FontSize="14" FontWeight="SemiBold" Margin="8,0,0,0" VerticalAlignment="Center"/>
       </StackPanel>
       <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" WindowChrome.IsHitTestVisibleInChrome="True">
-        <Button x:Name="LayoutToggle" Style="{StaticResource CaptionButton}" Click="LayoutToggle_Click" ToolTip="切换横竖布局">
+        <Button x:Name="LayoutToggle" Style="{StaticResource CaptionButton}" Click="LayoutToggle_Click"
+                ToolTip="切换横竖布局" AutomationProperties.Name="切换横竖布局">
           <Grid Width="18" Height="18">
             <Path Data="M3,4 L13,4 L13,20 L3,20 Z M16,4 L21,4 L21,20 L16,20 Z"
                   Stroke="{DynamicResource TextPrimaryBrush}" StrokeThickness="1.6" Fill="Transparent"
                   Stretch="Uniform" StrokeLineJoin="Round"/>
           </Grid>
         </Button>
-        <Button x:Name="ThemeToggle" Style="{StaticResource CaptionButton}" Click="ThemeToggle_Click" ToolTip="切换明暗主题">
+        <Button x:Name="ThemeToggle" Style="{StaticResource CaptionButton}" Click="ThemeToggle_Click"
+                ToolTip="切换明暗主题" AutomationProperties.Name="切换明暗主题">
           <Grid Width="18" Height="18">
             <Path x:Name="MoonIcon" Data="M21,12.8 A9,9 0 1 1 11.2,3 A7,7 0 0 0 21,12.8 Z"
                   Stroke="{DynamicResource TextPrimaryBrush}" StrokeThickness="1.8" Fill="Transparent"
@@ -43,9 +45,15 @@
                   Stretch="Uniform" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Visibility="Collapsed"/>
           </Grid>
         </Button>
-        <Button x:Name="MinBtn" Style="{StaticResource CaptionButton}" Content="─" Click="Minimize_Click" ToolTip="最小化"/>
-        <Button x:Name="MaxBtn" Style="{StaticResource CaptionButton}" Content="□" Click="Maximize_Click" ToolTip="最大化"/>
-        <Button x:Name="CloseBtn" Style="{StaticResource CloseButton}" Content="✕" Click="Close_Click" ToolTip="关闭"/>
+        <Button x:Name="MinBtn" Style="{StaticResource CaptionButton}" FontFamily="{StaticResource FluentIconFont}"
+                FontSize="10" Content="&#xE921;" Click="Minimize_Click"
+                ToolTip="最小化" AutomationProperties.Name="最小化"/>
+        <Button x:Name="MaxBtn" Style="{StaticResource CaptionButton}" FontFamily="{StaticResource FluentIconFont}"
+                FontSize="10" Content="&#xE922;" Click="Maximize_Click"
+                ToolTip="最大化" AutomationProperties.Name="最大化"/>
+        <Button x:Name="CloseBtn" Style="{StaticResource CloseButton}" FontFamily="{StaticResource FluentIconFont}"
+                FontSize="10" Content="&#xE8BB;" Click="Close_Click"
+                ToolTip="关闭" AutomationProperties.Name="关闭"/>
       </StackPanel>
     </Grid>
 
@@ -54,13 +62,13 @@
       <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="24">
         <Image Source="Assets/home.png" Width="360" Height="360" Stretch="Uniform"
                RenderOptions.BitmapScalingMode="HighQuality"/>
-        <TextBlock Text="ice·sudoku" FontSize="30" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,18,0,4"/>
+        <TextBlock Text="ice·sudoku" FontSize="28" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,16,0,4"/>
         <TextBlock Text="Fluent 数独 · 离线绿色版" FontSize="14" Foreground="{DynamicResource TextSecondaryBrush}"
-                   HorizontalAlignment="Center" Margin="0,0,0,26"/>
+                   HorizontalAlignment="Center" Margin="0,0,0,24"/>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-          <Button x:Name="StartBtn" Style="{StaticResource AccentButton}" Content="开始游戏" Padding="34,12"
+          <Button x:Name="StartBtn" Style="{StaticResource AccentButton}" Content="开始游戏" Padding="32,12"
                   FontSize="16" Margin="0,0,12,0" Click="StartGame_Click"/>
-          <Button x:Name="ExitGameBtn" Style="{StaticResource FluentButton}" Content="退出游戏" Padding="34,12"
+          <Button x:Name="ExitGameBtn" Style="{StaticResource FluentButton}" Content="退出游戏" Padding="32,12"
                   FontSize="16" Click="ExitGame_Click"/>
         </StackPanel>
       </StackPanel>
@@ -79,32 +87,35 @@
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <Grid x:Name="StatsHost" Grid.Row="0" Margin="0,0,0,14">
+        <Grid x:Name="StatsHost" Grid.Row="0" Margin="0,0,0,12">
           <Border Background="{DynamicResource LayerBrush}" BorderBrush="{DynamicResource CardBorderBrush}"
-                  BorderThickness="1" CornerRadius="8" Padding="18,8" HorizontalAlignment="Center">
+                  BorderThickness="1" CornerRadius="8" Padding="16,8" HorizontalAlignment="Center">
+            <Border.Effect>
+              <DropShadowEffect BlurRadius="16" ShadowDepth="2" Direction="270" Opacity="0.18" Color="#000000"/>
+            </Border.Effect>
             <UniformGrid Columns="3">
               <StackPanel Width="88" HorizontalAlignment="Center">
                 <TextBlock Text="用时" FontSize="12" Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Center"/>
-                <TextBlock x:Name="TimerText" Text="00:00" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,2,0,0"/>
+                <TextBlock x:Name="TimerText" Text="00:00" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,2,0,0"/>
               </StackPanel>
               <StackPanel Width="88" HorizontalAlignment="Center">
                 <TextBlock Text="重来" FontSize="12" Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Center"/>
-                <TextBlock x:Name="RestartText" Text="0 / 3" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,2,0,0"/>
+                <TextBlock x:Name="RestartText" Text="0 / 3" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,2,0,0"/>
               </StackPanel>
               <StackPanel Width="88" HorizontalAlignment="Center">
                 <TextBlock Text="难度" FontSize="12" Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Center"/>
-                <TextBlock x:Name="DiffText" Text="中等" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,2,0,0"/>
+                <TextBlock x:Name="DiffText" Text="中等" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,2,0,0"/>
               </StackPanel>
             </UniformGrid>
           </Border>
           <Button x:Name="PauseBtn" Style="{StaticResource IconButton}" HorizontalAlignment="Right" VerticalAlignment="Center"
-                  ToolTip="暂停 (Esc)" Click="Pause_Click">
+                  ToolTip="暂停 (Esc)" AutomationProperties.Name="暂停" Click="Pause_Click">
             <Path Data="M8,5 L8,19 M16,5 L16,19" Stroke="{DynamicResource TextPrimaryBrush}" StrokeThickness="2.4"
                   Stretch="Uniform" Width="16" Height="16" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
           </Button>
         </Grid>
 
-        <Grid x:Name="BoardHost" Grid.Row="1" Margin="0,0,0,14">
+        <Grid x:Name="BoardHost" Grid.Row="1" Margin="0,0,0,12">
           <Border x:Name="BoardBorder" HorizontalAlignment="Center" VerticalAlignment="Center"
                   Width="540" Height="540" MaxWidth="540" MaxHeight="540"
                   Background="{DynamicResource LayerBrush}" BorderBrush="{DynamicResource GridBoldBrush}"
@@ -113,17 +124,30 @@
           </Border>
           <Border x:Name="Overlay" HorizontalAlignment="Center" VerticalAlignment="Center"
                   Width="540" Height="540" Background="{DynamicResource OverlayBrush}" CornerRadius="8"
-                  Visibility="Collapsed">
-            <Border Background="{DynamicResource LayerAltBrush}" BorderBrush="{DynamicResource CardBorderBrush}"
-                    BorderThickness="1" CornerRadius="8" Padding="32,28" HorizontalAlignment="Center" VerticalAlignment="Center">
+                  Visibility="Collapsed"
+                  KeyboardNavigation.TabNavigation="Cycle"
+                  KeyboardNavigation.ControlTabNavigation="Cycle"
+                  KeyboardNavigation.DirectionalNavigation="Contained">
+            <Border x:Name="WinCard" Background="{DynamicResource LayerAltBrush}" BorderBrush="{DynamicResource CardBorderBrush}"
+                    BorderThickness="1" CornerRadius="8" Padding="32,24" HorizontalAlignment="Center" VerticalAlignment="Center">
+              <Border.RenderTransform>
+                <ScaleTransform x:Name="WinCardScale" ScaleX="1" ScaleY="1"/>
+              </Border.RenderTransform>
+              <Border.RenderTransformOrigin>
+                <Point X="0.5" Y="0.5"/>
+              </Border.RenderTransformOrigin>
+              <Border.Effect>
+                <DropShadowEffect BlurRadius="32" ShadowDepth="4" Direction="270" Opacity="0.3" Color="#000000"/>
+              </Border.Effect>
               <StackPanel HorizontalAlignment="Center">
-                <TextBlock x:Name="OverlayEmoji" Text="🎉" FontSize="48" HorizontalAlignment="Center" Margin="0,0,0,8"/>
-                <TextBlock x:Name="OverlayTitle" Text="完成！" FontSize="26" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,6"/>
+                <TextBlock x:Name="WinIcon" Text="&#xE930;" FontFamily="{StaticResource FluentIconFont}" FontSize="40"
+                           Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                <TextBlock x:Name="OverlayTitle" Text="完成！" FontSize="28" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,0,0,8"/>
                 <TextBlock x:Name="OverlayText" Text="漂亮，全部填对了。" FontSize="14" Foreground="{DynamicResource TextSecondaryBrush}"
-                           HorizontalAlignment="Center" TextAlignment="Center" Margin="0,0,0,20" MaxWidth="320" TextWrapping="Wrap"/>
+                           HorizontalAlignment="Center" TextAlignment="Center" Margin="0,0,0,24" MaxWidth="320" TextWrapping="Wrap"/>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                  <Button x:Name="OverlayNew" Style="{StaticResource AccentButton}" Content="再来一局" Padding="20,9" Margin="0,0,8,0" Click="OverlayNew_Click"/>
-                  <Button x:Name="OverlayDismiss" Style="{StaticResource FluentButton}" Content="查看棋盘" Padding="20,9" Click="OverlayDismiss_Click"/>
+                  <Button x:Name="OverlayNew" Style="{StaticResource AccentButton}" Content="再来一局" Padding="20,8" Margin="0,0,8,0" Click="OverlayNew_Click"/>
+                  <Button x:Name="OverlayDismiss" Style="{StaticResource FluentButton}" Content="查看棋盘" Padding="20,8" Click="OverlayDismiss_Click"/>
                 </StackPanel>
               </StackPanel>
             </Border>
@@ -133,26 +157,71 @@
         <UniformGrid x:Name="NumpadGrid" Grid.Row="2" Columns="9" Rows="1" Margin="0,0,0,12"/>
 
         <UniformGrid x:Name="ActionsHost" Grid.Row="3" Columns="6" Rows="1" Margin="0,0,0,12">
-          <ToggleButton x:Name="NotesToggle" Style="{StaticResource ToggleButton}" Content="✏ 草稿" Padding="6,8" Margin="2,0" Checked="NotesToggle_Changed" Unchecked="NotesToggle_Changed"/>
-          <Button x:Name="EraseBtn" Style="{StaticResource FluentButton}" Content="⌫ 擦除" Padding="6,8" Margin="2,0" Click="Erase_Click"/>
-          <Button x:Name="HintBtn" Style="{StaticResource FluentButton}" Content="💡 提示" Padding="6,8" Margin="2,0" Click="Hint_Click"/>
-          <Button x:Name="CheckBtn" Style="{StaticResource FluentButton}" Content="✔ 检查" Padding="6,8" Margin="2,0" Click="Check_Click"/>
-          <Button x:Name="RestartBtn" Style="{StaticResource FluentButton}" Content="↺ 重来" Padding="6,8" Margin="2,0" Click="Restart_Click"/>
-          <Button x:Name="SolveBtn" Style="{StaticResource FluentButton}" Content="⚡ 自动解" Padding="6,8" Margin="2,0" Click="Solve_Click"/>
+          <ToggleButton x:Name="NotesToggle" Style="{StaticResource ToggleButton}" Padding="8,8" Margin="4,0"
+                        AutomationProperties.Name="草稿" Checked="NotesToggle_Changed" Unchecked="NotesToggle_Changed">
+            <StackPanel Orientation="Horizontal">
+              <TextBlock FontFamily="{StaticResource FluentIconFont}" FontSize="14" Text="&#xE70F;" VerticalAlignment="Center"/>
+              <TextBlock Text="草稿" Margin="8,0,0,0" VerticalAlignment="Center"/>
+            </StackPanel>
+          </ToggleButton>
+          <Button x:Name="EraseBtn" Style="{StaticResource FluentButton}" Padding="8,8" Margin="4,0"
+                  AutomationProperties.Name="擦除" Click="Erase_Click">
+            <StackPanel Orientation="Horizontal">
+              <TextBlock FontFamily="{StaticResource FluentIconFont}" FontSize="14" Text="&#xE75C;" VerticalAlignment="Center"/>
+              <TextBlock Text="擦除" Margin="8,0,0,0" VerticalAlignment="Center"/>
+            </StackPanel>
+          </Button>
+          <Button x:Name="HintBtn" Style="{StaticResource FluentButton}" Padding="8,8" Margin="4,0"
+                  AutomationProperties.Name="提示" Click="Hint_Click">
+            <StackPanel Orientation="Horizontal">
+              <TextBlock FontFamily="{StaticResource FluentIconFont}" FontSize="14" Text="&#xEA80;" VerticalAlignment="Center"/>
+              <TextBlock Text="提示" Margin="8,0,0,0" VerticalAlignment="Center"/>
+            </StackPanel>
+          </Button>
+          <Button x:Name="CheckBtn" Style="{StaticResource FluentButton}" Padding="8,8" Margin="4,0"
+                  AutomationProperties.Name="检查" Click="Check_Click">
+            <StackPanel Orientation="Horizontal">
+              <TextBlock FontFamily="{StaticResource FluentIconFont}" FontSize="14" Text="&#xE73E;" VerticalAlignment="Center"/>
+              <TextBlock Text="检查" Margin="8,0,0,0" VerticalAlignment="Center"/>
+            </StackPanel>
+          </Button>
+          <Button x:Name="RestartBtn" Style="{StaticResource FluentButton}" Padding="8,8" Margin="4,0"
+                  AutomationProperties.Name="重来" Click="Restart_Click">
+            <StackPanel Orientation="Horizontal">
+              <TextBlock FontFamily="{StaticResource FluentIconFont}" FontSize="14" Text="&#xE72C;" VerticalAlignment="Center"/>
+              <TextBlock Text="重来" Margin="8,0,0,0" VerticalAlignment="Center"/>
+            </StackPanel>
+          </Button>
+          <Button x:Name="SolveBtn" Style="{StaticResource FluentButton}" Padding="8,8" Margin="4,0"
+                  AutomationProperties.Name="自动解" Click="Solve_Click">
+            <StackPanel Orientation="Horizontal">
+              <TextBlock FontFamily="{StaticResource FluentIconFont}" FontSize="14" Text="&#xE945;" VerticalAlignment="Center"/>
+              <TextBlock Text="自动解" Margin="8,0,0,0" VerticalAlignment="Center"/>
+            </StackPanel>
+          </Button>
         </UniformGrid>
 
         <Border x:Name="HintBar" Grid.Row="4" Background="{DynamicResource LayerBrush}" BorderBrush="{DynamicResource CardBorderBrush}"
-                BorderThickness="1" CornerRadius="6" Padding="12" MinHeight="44" Margin="0,0,0,10">
-          <TextBlock x:Name="HintText" Text="" FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}"
-                     TextWrapping="Wrap" VerticalAlignment="Center"/>
+                BorderThickness="1" CornerRadius="4" Padding="12" MinHeight="44" Margin="0,0,0,8">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock x:Name="HintIcon" Text="&#xE946;" FontFamily="{StaticResource FluentIconFont}" FontSize="16"
+                       Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <TextBlock x:Name="HintText" Grid.Column="1" Text="逻辑提示与检查结果会显示在这里。" FontSize="14"
+                       Foreground="{DynamicResource TextSecondaryBrush}"
+                       TextWrapping="Wrap" VerticalAlignment="Center"/>
+          </Grid>
         </Border>
 
         <TextBlock x:Name="FooterText" Grid.Row="5" Text="键盘：方向键移动 · 1-9 填数 · 0/Del 擦除 · N 草稿 · Esc 暂停" FontSize="12"
-                   Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                   Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Center" Margin="0,0,0,8"/>
       </Grid>
 
       <!-- 横版：顶部统计居中+暂停居右，下方棋盘在左、数字盘在右 -->
-      <Grid x:Name="HRoot" Visibility="Collapsed" Margin="22,8,22,0">
+      <Grid x:Name="HRoot" Visibility="Collapsed" Margin="24,8,24,0">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
@@ -176,15 +245,31 @@
       </Grid>
 
       <!-- 暂停页 -->
-      <Grid x:Name="PauseOverlay" Background="{DynamicResource OverlayBrush}" Visibility="Collapsed">
-        <Border Background="{DynamicResource LayerAltBrush}" BorderBrush="{DynamicResource CardBorderBrush}"
-                BorderThickness="1" CornerRadius="10" Padding="36,30" HorizontalAlignment="Center" VerticalAlignment="Center">
+      <Grid x:Name="PauseOverlay" Background="{DynamicResource OverlayBrush}" Visibility="Collapsed"
+            KeyboardNavigation.TabNavigation="Cycle"
+            KeyboardNavigation.ControlTabNavigation="Cycle"
+            KeyboardNavigation.DirectionalNavigation="Contained">
+        <Border x:Name="PauseCard" Background="{DynamicResource LayerAltBrush}" BorderBrush="{DynamicResource CardBorderBrush}"
+                BorderThickness="1" CornerRadius="8" Padding="36,32" HorizontalAlignment="Center" VerticalAlignment="Center">
+          <Border.RenderTransform>
+            <ScaleTransform x:Name="PauseCardScale" ScaleX="1" ScaleY="1"/>
+          </Border.RenderTransform>
+          <Border.RenderTransformOrigin>
+            <Point X="0.5" Y="0.5"/>
+          </Border.RenderTransformOrigin>
+          <Border.Effect>
+            <DropShadowEffect BlurRadius="32" ShadowDepth="4" Direction="270" Opacity="0.3" Color="#000000"/>
+          </Border.Effect>
           <StackPanel HorizontalAlignment="Center" MinWidth="320">
-            <TextBlock Text="⏸ 已暂停" FontSize="26" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,6"/>
-            <TextBlock Text="难度仅在此处调整，开始新游戏时生效" FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}"
-                       HorizontalAlignment="Center" Margin="0,0,0,18"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,8">
+              <TextBlock FontFamily="{StaticResource FluentIconFont}" FontSize="22" Text="&#xE769;"
+                         VerticalAlignment="Center" Margin="0,0,8,0"/>
+              <TextBlock Text="已暂停" FontSize="28" FontWeight="SemiBold" VerticalAlignment="Center"/>
+            </StackPanel>
+            <TextBlock Text="难度仅在此处调整，开始新游戏时生效" FontSize="14" Foreground="{DynamicResource TextSecondaryBrush}"
+                       HorizontalAlignment="Center" Margin="0,0,0,16"/>
             <Border Background="{DynamicResource LayerBrush}" BorderBrush="{DynamicResource CardBorderBrush}"
-                    BorderThickness="1" CornerRadius="20" Padding="6" HorizontalAlignment="Center" Margin="0,0,0,22">
+                    BorderThickness="1" CornerRadius="20" Padding="4" HorizontalAlignment="Center" Margin="0,0,0,24">
               <StackPanel Orientation="Horizontal">
                 <RadioButton x:Name="PDiffEasy" Style="{StaticResource ChipRadio}" GroupName="PauseDiff" Content="简单" Tag="easy" Checked="PauseDiff_Checked"/>
                 <RadioButton x:Name="PDiffMedium" Style="{StaticResource ChipRadio}" GroupName="PauseDiff" Content="中等" Tag="medium" Checked="PauseDiff_Checked"/>
@@ -192,8 +277,8 @@
                 <RadioButton x:Name="PDiffExpert" Style="{StaticResource ChipRadio}" GroupName="PauseDiff" Content="专家" Tag="expert" Checked="PauseDiff_Checked"/>
               </StackPanel>
             </Border>
-            <Button x:Name="ResumeBtn" Style="{StaticResource AccentButton}" Content="继续游戏" Padding="20,10" Margin="0,0,0,10" Click="Resume_Click"/>
-            <Button x:Name="PauseNewBtn" Style="{StaticResource FluentButton}" Content="开始新游戏" Padding="20,10" Margin="0,0,0,10" Click="PauseNew_Click"/>
+            <Button x:Name="ResumeBtn" Style="{StaticResource AccentButton}" Content="继续游戏" Padding="20,10" Margin="0,0,0,8" Click="Resume_Click"/>
+            <Button x:Name="PauseNewBtn" Style="{StaticResource FluentButton}" Content="开始新游戏" Padding="20,10" Margin="0,0,0,8" Click="PauseNew_Click"/>
             <Button x:Name="MenuBtn" Style="{StaticResource FluentButton}" Content="返回主菜单" Padding="20,10" Click="Menu_Click"/>
           </StackPanel>
         </Border>
