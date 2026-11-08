@@ -602,8 +602,10 @@ public partial class MainWindow : Window
             MoveTo(NumpadGrid, HSide, 0);
             NumpadGrid.Columns = 3; NumpadGrid.Rows = 3;
             NumpadGrid.Height = 252;
-            NumpadGrid.VerticalAlignment = VerticalAlignment.Center;
+            NumpadGrid.VerticalAlignment = VerticalAlignment.Top;
             NumpadGrid.Margin = new Thickness(12, 0, 12, 12);
+            PauseBtn.Width = 48; PauseBtn.Height = 48;
+            PauseIcon.Width = 18; PauseIcon.Height = 18;
             for (int n = 1; n <= 9; n++)
             {
                 _numButtons[n].Height = 76;
@@ -633,6 +635,8 @@ public partial class MainWindow : Window
             NumpadGrid.Height = double.NaN;
             NumpadGrid.VerticalAlignment = VerticalAlignment.Stretch;
             NumpadGrid.Margin = new Thickness(0, 0, 0, 12);
+            PauseBtn.Width = 40; PauseBtn.Height = 40;
+            PauseIcon.Width = 16; PauseIcon.Height = 16;
             for (int n = 1; n <= 9; n++)
             {
                 _numButtons[n].Height = 56;

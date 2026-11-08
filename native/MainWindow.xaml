@@ -110,7 +110,7 @@
           </Border>
           <Button x:Name="PauseBtn" Style="{StaticResource IconButton}" HorizontalAlignment="Right" VerticalAlignment="Center"
                   ToolTip="暂停 (Esc)" AutomationProperties.Name="暂停" Click="Pause_Click">
-            <Path Data="M8,5 L8,19 M16,5 L16,19" Stroke="{DynamicResource TextPrimaryBrush}" StrokeThickness="2.4"
+            <Path x:Name="PauseIcon" Data="M8,5 L8,19 M16,5 L16,19" Stroke="{DynamicResource TextPrimaryBrush}" StrokeThickness="2.4"
                   Stretch="Uniform" Width="16" Height="16" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
           </Button>
         </Grid>
