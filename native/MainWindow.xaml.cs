@@ -320,7 +320,7 @@ public partial class MainWindow : Window
     {
         if (_over || _paused || !_inGame || _selected is not { } sel) return;
         int r = sel.R, c = sel.C;
-        if (_given[r, c]) return;
+        if (_given[r, c]) { FocusNumber(n); return; }
 
         if (_notesMode)
         {
@@ -335,6 +335,22 @@ public partial class MainWindow : Window
         Render();
         ScaleTo(_cells[r, c].ValueScale, 1.2, 1, 180);
         CheckWin();
+    }
+
+    private void FocusNumber(int n)
+    {
+        if (_selected is not { } sel || _grid[sel.R, sel.C] == n) return;
+        (int R, int C)? best = null;
+        int bestDist = int.MaxValue;
+        for (int r = 0; r < 9; r++) for (int c = 0; c < 9; c++)
+        {
+            if (_grid[r, c] != n) continue;
+            int d = Math.Abs(r - sel.R) + Math.Abs(c - sel.C);
+            if (d < bestDist) { bestDist = d; best = (r, c); }
+        }
+        if (best is not { } target) return;
+        _selected = target;
+        Render();
     }
 
     private void Erase()
